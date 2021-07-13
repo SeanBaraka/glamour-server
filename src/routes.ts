@@ -18,5 +18,11 @@ export const Routes = [
         route: '/customer/list',
         controller: CustomerController,
         action: 'getAll'
+    },
+    {
+        method: 'post',
+        route: '/customer/reservation/create',
+        controller: CustomerController,
+        action: 'createReservation'
     }
 ];
