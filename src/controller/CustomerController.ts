@@ -110,7 +110,12 @@ export class CustomerController {
             const serviceExists = await this.servicesRepo.findOne({ where: {name: service.order}}) // check if it exists
             if (serviceExists) {
                 reservation.services = [
-                    new ReservationService(serviceAttendant, service.date, serviceExists.name, service.startTime, service.end)
+                    new ReservationService(serviceAttendant, service.date, serviceExists.name, service.startTime, service.endTime)
+                ]
+            } else {
+                const newService = new Service(service.order, 0);
+                reservation.services = [
+                    new ReservationService(serviceAttendant, service.date, newService.name, service.startTime, service.endTime )
                 ]
             }
         })
