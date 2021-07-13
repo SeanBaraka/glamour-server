@@ -100,6 +100,7 @@ export class CustomerController {
         const customer = await this.customerRepo.findOne(customerId)
         reservation.customer = customer // attach the customer to the reservation instance
 
+        console.log('services', services);
         // for each of the services selected, find if it exists on the database, else create an instance
         services.forEach(async (service: any) => {
             // we pass the attendants name in the request, so check if the attendant also exists
