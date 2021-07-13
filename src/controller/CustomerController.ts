@@ -13,6 +13,49 @@ export class CustomerController {
         return this.customerRepo.find();
     }
 
+    // get a single customer, meeting the given criteria
+    async getCustomer(request: Request, response: Response) {
+        const param = request.body.searchParam
+        
+        // we asssume the param is the name of the customer
+        const findByFirstName = await this.customerRepo.findOne({
+            where: {
+                firstname: param
+            }
+        })
+
+        if (findByFirstName !== undefined) {
+            return findByFirstName
+        } else {
+            const findByLastName = await this.customerRepo.findOne({
+                where: {
+                    lastname: param
+                }
+            });
+            // if a match for the last name is found,
+            if (findByLastName !== undefined) {
+                return findByLastName;
+            } else {
+                // assumming that neither the firstname or lastnames match,
+                // we should try the full name
+                const allCustomers = await this.customerRepo.find();
+                console.log(allCustomers)
+               // const desiredCustomer = allCustomers.find(customer => customer.firstname.includes(param) || customer.lastname.includes(param));
+		const validCustomers = allCustomers.filter(x => x.firstname !== '' && x.lastname !== '')
+		const desiredCustomer = validCustomers.find(cust => cust.firstname.includes(param) || cust.lastname.includes(param))
+                if (desiredCustomer == undefined) {
+                    return {
+                        error: 'Customer Not Found',
+                        message: 'customer does not exist',
+                        status: 404
+                    }
+                } else {
+                    return desiredCustomer
+                }
+            }
+        }
+    }
+
     async registerCustomer(request: Request, response: Response) {
         // we are adding a new customer record
         const newCustomer = new Customer()
@@ -25,6 +68,7 @@ export class CustomerController {
         // attempt to add the customer
         try {
             const addAttempt = await this.customerRepo.insert(newCustomer) // add the record
+            console.log(addAttempt);
             if (addAttempt) {
                 const success  = {
                     "message": "new customer added successfully",
@@ -33,8 +77,12 @@ export class CustomerController {
                 return success;
             }
             
-        } catch (error: any) {
+        } catch (error) {
             console.log(error.message)
         }
+    }
+
+    async createReservation(request: Request, response: Response) {
+        //
     }
 }
