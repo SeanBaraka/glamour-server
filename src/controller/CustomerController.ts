@@ -1,11 +1,17 @@
 import { Request, Response } from "express";
 import { getMongoRepository } from "typeorm";
+import { Attendant } from "../entity/Attendant";
 import { Customer } from "../entity/Customer";
+import { OrderReservation } from "../entity/OrderReservation";
+import { ReservationService } from "../entity/ReservationService";
+import { Service } from "../entity/Service";
 
 export class CustomerController {
     
     // initialize the database repositories needed
     private customerRepo = getMongoRepository(Customer)
+    private servicesRepo = getMongoRepository(Service)
+    private attendantRepo = getMongoRepository(Attendant)
 
     // get a list of all customers
     async getAll(request: Request, response: Response) {
@@ -83,6 +89,37 @@ export class CustomerController {
     }
 
     async createReservation(request: Request, response: Response) {
-        //
+        // create a reservation object
+        const reservationRequest = request.body
+        const reservation = new OrderReservation() // create a reservation instance
+
+        const customerId = reservationRequest.customer
+        const services = Array.from(reservationRequest.services)
+
+        // find a customer associated with the reservation 
+        const customer = await this.customerRepo.findOne(customerId)
+        reservation.customer = customer // attach the customer to the reservation instance
+
+        // for each of the services selected, find if it exists on the database, else create an instance
+        services.forEach(async (service: any) => {
+            // we pass the attendants name in the request, so check if the attendant also exists
+            let serviceAttendant = await this.attendantRepo.findOne({where: {firstname: service.attendant}})
+            if (!serviceAttendant) {
+                serviceAttendant = new Attendant(service.attendant, '', 'female')
+            }
+            const serviceExists = await this.servicesRepo.findOne({ where: {name: service.order}}) // check if it exists
+            if (serviceExists) {
+                reservation.services = [
+                    new ReservationService(serviceAttendant, service.date, serviceExists.name, service.startTime, service.end)
+                ]
+            }
+        })
+
+        console.log(reservation)
+        const successMessage = {
+            message: 'All seems well at the moment'
+        }
+        return successMessage;
+        
     }
 }
