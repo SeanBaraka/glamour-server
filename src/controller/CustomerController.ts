@@ -160,7 +160,7 @@ export class CustomerController {
             
             addReservationOrder.services.forEach((service, index) => {
                 services.push(service.service)
-                while (index == 0) {
+                if (index === 0) {
                     startTime = service.startTime
                 }
             })
