@@ -74,10 +74,9 @@ export class CustomerController {
                 // assumming that neither the firstname or lastnames match,
                 // we should try the full name
                 const allCustomers = await this.customerRepo.find();
-                console.log(allCustomers)
                // const desiredCustomer = allCustomers.find(customer => customer.firstname.includes(param) || customer.lastname.includes(param));
-		const validCustomers = allCustomers.filter(x => x.firstname !== '' && x.lastname !== '')
-		const desiredCustomer = validCustomers.find(cust => cust.firstname.includes(param) || cust.lastname.includes(param))
+                const validCustomers = allCustomers.filter(x => x.firstname !== '' && x.lastname !== '')
+                const desiredCustomer = validCustomers.find(cust => cust.firstname.includes(param) || cust.lastname.includes(param))
                 if (desiredCustomer == undefined) {
                     return {
                         error: 'Customer Not Found',
@@ -151,13 +150,23 @@ export class CustomerController {
         if (addReservationOrder) {
             // after saving the reservation... notify the user that one has been created for them
             
+            const telephone = '+254'+reservation.customer.telephone.slice(1)
+            const timeRange = ''
+            let startTime = ''
+            const services = []
+            addReservationOrder.services.forEach((service, index) => {
+                services.push(service.service)
+                while (index == 0) {
+                    startTime = service.startTime
+                }
+            })
+            const servicesList = services.join(' ')
             const messageOptions = {
-                recipients: ['+254724685059'],
-                message: 'Reservations Created Successfully'
+                recipients: [telephone],
+                message: `Reservations Created Successfully for customer ${reservation.customer.firstname}. Please be at the palor before ${startTime} for ${servicesList}`
             }
             const sendMessage = await this.sendMessage(messageOptions.recipients, messageOptions.message)
-            console.log(sendMessage);
-            
+
             const successMessage = {
                 message: 'Reservations Created Successfully',
                 status: 200,
