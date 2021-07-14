@@ -166,7 +166,7 @@ export class CustomerController {
                 message: `Reservations Created Successfully for customer ${reservation.customer.firstname}. Please be at the palor before ${startTime} for ${servicesList}`
             }
             const sendMessage = await this.sendMessage(messageOptions.recipients, messageOptions.message)
-
+            console.log(sendMessage)
             const successMessage = {
                 message: 'Reservations Created Successfully',
                 status: 200,
