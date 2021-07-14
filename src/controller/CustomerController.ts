@@ -115,8 +115,13 @@ export class CustomerController {
             }
             let reserveService = new ReservationService(serviceAttendant, service.date, service.order, service.startTime, service.endTime)
             const savedReservation = await this.reserveServiceRepo.save(reserveService)
-
+            console.log('--------------- saved reservation --------------')
+            console.log(savedReservation)
+            console.log('-------------- initial array --------------')
+            console.log(reservation.services)
             reservation.services.push(savedReservation) // add the reservation to the reservation object
+            console.log('-------------- populated array ---------------')
+            console.log(reservation.services)
         })
 
         console.log(reservation)
