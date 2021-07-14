@@ -5,7 +5,6 @@ import { Customer } from "../entity/Customer";
 import { OrderReservation } from "../entity/OrderReservation";
 import { ReservationService } from "../entity/ReservationService";
 import { Service } from "../entity/Service";
-import Africastalking from 'africastalking'
 
 export class CustomerController {
     
@@ -15,6 +14,33 @@ export class CustomerController {
     private attendantRepo = getMongoRepository(Attendant)
     private reserveServiceRepo = getMongoRepository(ReservationService)
     private reserveOrderRepo = getMongoRepository(OrderReservation)
+
+    // Africastalking API integration.
+    // first we send the notification messages
+    private credentials = {
+        apiKey: process.env.ATTESTKEY,
+        username: 'sandbox'
+    }
+
+    private AfricasTalking = require('africastalking')(this.credentials);
+
+    private SMS = this.AfricasTalking.SMS
+
+    async sendMessage(recipients: any[], message: string) {
+        const options = {
+            // the numbers to send the message to
+            to: recipients,
+            // Set your message
+            message: message,
+
+            // Sms short code here
+            // from: '111'
+        }
+    
+        // sending the message from here
+        const messageSent = await this.SMS.send(options)
+        return messageSent
+    }
 
     // get a list of all customers
     async getAll(request: Request, response: Response) {
@@ -124,17 +150,12 @@ export class CustomerController {
         const addReservationOrder = await this.reserveOrderRepo.save(reservation) // save the reservation order
         if (addReservationOrder) {
             // after saving the reservation... notify the user that one has been created for them
-            const credentials = {
-                apiKey: process.env.ATTESTKEY,
-                username: 'sandbox'
-            }
-            const africastalking = new Africastalking(credentials)
-            const sms = africastalking.SMS
+            
             const messageOptions = {
-                to: ['+254724685059'],
+                recipients: ['+254724685059'],
                 message: 'Reservations Created Successfully'
             }
-            const sendMessage = await sms.send(messageOptions)
+            const sendMessage = await this.sendMessage(messageOptions.recipients, messageOptions.message)
             console.log(sendMessage);
             
             const successMessage = {
