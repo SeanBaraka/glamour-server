@@ -108,22 +108,14 @@ export class CustomerController {
             if (!serviceAttendant) {
                 serviceAttendant = new Attendant(service.attendant, '', 'female')
                 const addAttendant = await this.attendantRepo.save(serviceAttendant)
-                console.log('-------------------from added attendant -------------------\n')
-                console.log(addAttendant)
             }
             const serviceExists = await this.servicesRepo.findOne({ where: {name: service.order}}) // check if it exists
             if (serviceExists) {
-                reservation.services = [
-                    new ReservationService(serviceAttendant, service.date, serviceExists.name, service.startTime, service.endTime)
-                ]
+                reservation.services.push(new ReservationService(serviceAttendant, service.date, serviceExists.name, service.startTime, service.endTime))
             } else {
                 const newService = new Service(service.order, 0);
                 const addService = await this.servicesRepo.save(newService)
-                console.log('------------------- from service added -------------')
-                console.log(addService)
-                reservation.services = [
-                    new ReservationService(serviceAttendant, service.date, newService.name, service.startTime, service.endTime )
-                ]
+                reservation.services.push(new ReservationService(serviceAttendant, service.date, newService.name, service.startTime, service.endTime ))
             }
         })
 
