@@ -5,6 +5,7 @@ import { Customer } from "../entity/Customer";
 import { OrderReservation } from "../entity/OrderReservation";
 import { ReservationService } from "../entity/ReservationService";
 import { Service } from "../entity/Service";
+import Africastalking from 'africastalking'
 
 export class CustomerController {
     
@@ -13,6 +14,7 @@ export class CustomerController {
     private servicesRepo = getMongoRepository(Service)
     private attendantRepo = getMongoRepository(Attendant)
     private reserveServiceRepo = getMongoRepository(ReservationService)
+    private reserveOrderRepo = getMongoRepository(OrderReservation)
 
     // get a list of all customers
     async getAll(request: Request, response: Response) {
@@ -115,20 +117,35 @@ export class CustomerController {
             }
             let reserveService = new ReservationService(serviceAttendant, service.date, service.order, service.startTime, service.endTime)
             const savedReservation = await this.reserveServiceRepo.save(reserveService)
-            console.log('--------------- saved reservation --------------')
-            console.log(savedReservation)
-            console.log('-------------- initial array --------------')
-            console.log(reservation.services)
             reservation.services.push(savedReservation) // add the reservation to the reservation object
-            console.log('-------------- populated array ---------------')
-            console.log(reservation.services)
+    
         }
 
-        console.log(reservation)
-        const successMessage = {
-            message: 'All seems well at the moment'
+        const addReservationOrder = await this.reserveOrderRepo.save(reservation) // save the reservation order
+        if (addReservationOrder) {
+            // after saving the reservation... notify the user that one has been created for them
+            const credentials = {
+                apiKey: process.env.ATTESTKEY,
+                username: 'sandbox'
+            }
+            const africastalking = new Africastalking(credentials)
+            const sms = africastalking.SMS
+            const messageOptions = {
+                to: ['+254724685059'],
+                message: 'Reservations Created Successfully'
+            }
+            const sendMessage = await sms.send(messageOptions)
+            console.log(sendMessage);
+            
+            const successMessage = {
+                message: 'Reservations Created Successfully',
+                status: 200,
+                details: {
+                    customer: addReservationOrder.customer.firstname
+                }
+            }
+            return successMessage
         }
-        return successMessage;
         
     }
 }
