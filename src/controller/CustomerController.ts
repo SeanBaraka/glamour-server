@@ -147,7 +147,7 @@ export class CustomerController {
         }
 
         const addReservationOrder = await this.reserveOrderRepo.save(reservation) // save the reservation order
-        if (addReservationOrder) {
+        try {
             // after saving the reservation... notify the user that one has been created for them
             
             const telephone = '+254'+reservation.customer.telephone.slice(1)
@@ -175,6 +175,12 @@ export class CustomerController {
                 }
             }
             return successMessage
+        } catch(error) {
+            console.log(error)
+            const errorMessage = {
+                message: 'Error'
+            }
+            return errorMessage;
         }
         
     }
