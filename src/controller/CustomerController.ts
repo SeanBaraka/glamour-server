@@ -95,7 +95,7 @@ export class CustomerController {
         const reservation = new OrderReservation() // create a reservation instance
 
         const customerId = reservationRequest.customer
-        const services = Array.from(reservationRequest.services)
+        const services: any[] = Array.from(reservationRequest.services)
 
         // find a customer associated with the reservation 
         const customer = await this.customerRepo.findOne(customerId)
@@ -104,7 +104,7 @@ export class CustomerController {
 
         console.log('services', services);
         // for each of the services selected, find if it exists on the database, else create an instance
-        services.forEach(async (service: any) => {
+        for await (const service of services) {
             // for each service from the request. create an instance of reservation service.
             // we will push this instance to the reservation object.
             // first, check if the attendant exists if not, create a new record
@@ -122,7 +122,7 @@ export class CustomerController {
             reservation.services.push(savedReservation) // add the reservation to the reservation object
             console.log('-------------- populated array ---------------')
             console.log(reservation.services)
-        })
+        }
 
         console.log(reservation)
         const successMessage = {
