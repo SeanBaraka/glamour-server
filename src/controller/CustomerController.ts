@@ -12,6 +12,7 @@ export class CustomerController {
     private customerRepo = getMongoRepository(Customer)
     private servicesRepo = getMongoRepository(Service)
     private attendantRepo = getMongoRepository(Attendant)
+    private reserveServiceRepo = getMongoRepository(ReservationService)
 
     // get a list of all customers
     async getAll(request: Request, response: Response) {
@@ -99,24 +100,23 @@ export class CustomerController {
         // find a customer associated with the reservation 
         const customer = await this.customerRepo.findOne(customerId)
         reservation.customer = customer // attach the customer to the reservation instance
+        reservation.services = []
 
         console.log('services', services);
         // for each of the services selected, find if it exists on the database, else create an instance
         services.forEach(async (service: any) => {
-            // we pass the attendants name in the request, so check if the attendant also exists
+            // for each service from the request. create an instance of reservation service.
+            // we will push this instance to the reservation object.
+            // first, check if the attendant exists if not, create a new record
             let serviceAttendant = await this.attendantRepo.findOne({where: {firstname: service.attendant}})
             if (!serviceAttendant) {
                 serviceAttendant = new Attendant(service.attendant, '', 'female')
                 const addAttendant = await this.attendantRepo.save(serviceAttendant)
             }
-            const serviceExists = await this.servicesRepo.findOne({ where: {name: service.order}}) // check if it exists
-            if (serviceExists) {
-                reservation.services.push(new ReservationService(serviceAttendant, service.date, serviceExists.name, service.startTime, service.endTime))
-            } else {
-                const newService = new Service(service.order, 0);
-                const addService = await this.servicesRepo.save(newService)
-                reservation.services.push(new ReservationService(serviceAttendant, service.date, newService.name, service.startTime, service.endTime ))
-            }
+            let reserveService = new ReservationService(serviceAttendant, service.date, service.order, service.startTime, service.endTime)
+            const savedReservation = await this.reserveServiceRepo.save(reserveService)
+
+            reservation.services.push(savedReservation) // add the reservation to the reservation object
         })
 
         console.log(reservation)
