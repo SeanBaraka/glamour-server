@@ -18,8 +18,8 @@ export class CustomerController {
     // Africastalking API integration.
     // first we send the notification messages
     private credentials = {
-        apiKey: process.env.ATTESTKEY,
-        username: 'sandbox'
+        apiKey: process.env.ATKEY,
+        username: 'glamour'
     }
 
     private AfricasTalking = require('africastalking')(this.credentials);
