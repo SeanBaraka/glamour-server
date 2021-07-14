@@ -143,17 +143,21 @@ export class CustomerController {
             let reserveService = new ReservationService(serviceAttendant, service.date, service.order, service.startTime, service.endTime)
             const savedReservation = await this.reserveServiceRepo.save(reserveService)
             reservation.services.push(savedReservation) // add the reservation to the reservation object
-    
+            console.log('inside the loop')
         }
-
+        console.log('outside the loop')
         const addReservationOrder = await this.reserveOrderRepo.save(reservation) // save the reservation order
+        
         try {
             // after saving the reservation... notify the user that one has been created for them
+            console.log('start of try');
             
-            const telephone = '+254'+reservation.customer.telephone.slice(1)
+            const telephone = '+254'+addReservationOrder.customer.telephone.slice(1)
             const timeRange = ''
             let startTime = ''
             const services = []
+            console.log('somewhere in try');
+            
             addReservationOrder.services.forEach((service, index) => {
                 services.push(service.service)
                 while (index == 0) {
@@ -163,7 +167,7 @@ export class CustomerController {
             const servicesList = services.join(' ')
             const messageOptions = {
                 recipients: [telephone],
-                message: `Reservations Created Successfully for customer ${reservation.customer.firstname}. Please be at the palor before ${startTime} for ${servicesList}`
+                message: `Reservations Created Successfully for customer ${addReservationOrder.customer.firstname}. Please be at the palor before ${startTime} for ${servicesList}`
             }
             const sendMessage = await this.sendMessage(messageOptions.recipients, messageOptions.message)
             console.log(sendMessage)
