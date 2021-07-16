@@ -186,7 +186,7 @@ export class CustomerController {
 
     async getReservationList(request: Request, response: Response) {
         // uhm, where do we start
-        const reserveList = await (await this.reserveOrderRepo.find()).reverse
+        const reserveList = (await this.reserveOrderRepo.find()).reverse
         return reserveList
     }
 
