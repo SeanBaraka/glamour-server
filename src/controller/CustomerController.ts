@@ -183,4 +183,11 @@ export class CustomerController {
         }
         
     }
+
+    async getReservationList(request: Request, response: Response) {
+        // uhm, where do we start
+        const reserveList = await this.reserveServiceRepo.find()
+        return reserveList
+    }
+
 }

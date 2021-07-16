@@ -24,5 +24,11 @@ export const Routes = [
         route: '/customer/reservation/create',
         controller: CustomerController,
         action: 'createReservation'
+    },
+    {
+        method: 'get',
+        route: '/reservations/list',
+        controller: CustomerController,
+        action: 'getReservationList'
     }
 ];
