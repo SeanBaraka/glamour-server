@@ -43,5 +43,17 @@ export const Routes = [
         route: '/services/all',
         controller: ManagementController,
         action: 'servicesList'
+    },
+    {
+        method: 'post',
+        route: '/add/new/staff',
+        controller: ManagementController,
+        action: 'registerStaff'
+    },
+    {
+        method: 'post',
+        route: '/add/new/service',
+        controller: ManagementController,
+        action: 'registerService'
     }
 ];

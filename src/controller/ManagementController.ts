@@ -22,4 +22,14 @@ export class ManagementController {
         const attendants = (await this.attendantRepo.find()).reverse()
         return attendants;
     }
+
+    // register stylists into the system
+    async registerStaff (request: Request, response: Response) {
+
+    }
+
+    // add services
+    async registerService (request: Request, response: Response) {
+        
+    }
 }
