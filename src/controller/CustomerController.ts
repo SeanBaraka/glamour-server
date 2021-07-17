@@ -160,10 +160,15 @@ export class CustomerController {
                     startTime = service.startTime
                 }
             })
+            // attaching the services and coming up with a decent message
             const servicesList = services.join(', ')
+            const hourMark = parseInt(startTime.split(':')[0])
+            let timeOfDay = ''
+            hourMark < 12 ? timeOfDay = `${startTime} AM` : timeOfDay = `${hourMark - 12} PM`
+
             const messageOptions = {
                 recipients: [telephone],
-                message: `Reservations Created Successfully for customer ${addReservationOrder.customer.firstname} on ${date}. Please be at the palor before ${startTime} for ${servicesList}`
+                message: `Hello ${addReservationOrder.customer.firstname}, Your reservation has been scheduled at ${timeOfDay} on ${date}. Please be at the palor before ${timeOfDay} for ${servicesList}`
             }
             const sendMessage = await this.sendMessage(messageOptions.recipients, messageOptions.message)
             const successMessage = {
