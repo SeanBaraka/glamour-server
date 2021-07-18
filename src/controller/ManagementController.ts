@@ -33,7 +33,7 @@ export class ManagementController {
 
         // start by checking if one exists, matching some of the given records,
         // we use the nationalId for validation, its a compulsory field and it should be unique
-        const attendantExists = await this.attendantRepo.findOneOrFail({where: {nationalId: nationalId}})
+        const attendantExists = await this.attendantRepo.findOne({nationalId: nationalId})
         if (attendantExists !== undefined) {
             return {
                 error: 'sorry, a similar attendant is registered with the same ID number',
