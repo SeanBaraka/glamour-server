@@ -68,14 +68,16 @@ export class ManagementController {
         // now we create services..
         // we have the service name and costing options
         // retrieve the values from the request body
-        const { name, price, costItems } = request.body
+        const { category, name, price, costItems } = request.body
+        console.log(category, name, price);
+        
         const service = await this.serviceRepo.findOneOrFail({name: name})
         if (service !== undefined) {
             return {
                 error: 'a similar service exists'
             }
         }
-        const serviceToAdd = new Service(name, price)
+        const serviceToAdd = new Service(name, price, category)
         const costItemsList: any[] = Array.from(costItems)
         if (costItemsList.length > 0) {
             for (const costItem of costItemsList) {
