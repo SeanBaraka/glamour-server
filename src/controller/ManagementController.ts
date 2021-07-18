@@ -72,31 +72,32 @@ export class ManagementController {
         console.log(category, name, price);
         
         const service = await this.serviceRepo.findOneOrFail({name: name})
-        if (service !== undefined) {
+        if (service === undefined) {
+            const serviceToAdd = new Service(name, price, category)
+            const costItemsList: any[] = Array.from(costItems)
+            if (costItemsList.length > 0) {
+                for (const costItem of costItemsList) {
+                    const serviceCost = new ServiceCost(costItem.name, costItem.price)
+                    serviceToAdd.costItems.push(serviceCost)
+                }
+            }
+
+            // attempt to add the service
+            try {
+                const addAttempt = await this.serviceRepo.save(serviceToAdd);
+                return {
+                    message: 'a new service has been registered successfully',
+                    status: 200
+                }
+            } catch (error) {
+                return {
+                    error: error,
+                    status: response.statusCode
+                }
+            }
+        } else {
             return {
                 error: 'a similar service exists'
-            }
-        }
-        const serviceToAdd = new Service(name, price, category)
-        const costItemsList: any[] = Array.from(costItems)
-        if (costItemsList.length > 0) {
-            for (const costItem of costItemsList) {
-                const serviceCost = new ServiceCost(costItem.name, costItem.price)
-                serviceToAdd.costItems.push(serviceCost)
-            }
-        }
-
-        // attempt to add the service
-        try {
-            const addAttempt = await this.serviceRepo.save(serviceToAdd);
-            return {
-                message: 'a new service has been registered successfully',
-                status: 200
-            }
-        } catch (error) {
-            return {
-                error: error,
-                status: response.statusCode
             }
         }
     }
