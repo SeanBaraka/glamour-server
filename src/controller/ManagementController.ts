@@ -28,7 +28,7 @@ export class ManagementController {
         // get the request object from the request body
         const { 
             firstname, lastname, gender, telephone, 
-            address, nationalId, emailAddress, avatar
+            address, nationalId, emailAddress, avatar, services
         } = request.body
 
         // start by checking if one exists, matching some of the given records,
