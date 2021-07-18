@@ -1,4 +1,5 @@
 import { CustomerController } from "./controller/CustomerController";
+import { ManagementController } from "./controller/ManagementController";
 
 export const Routes = [
     {
@@ -24,5 +25,35 @@ export const Routes = [
         route: '/customer/reservation/create',
         controller: CustomerController,
         action: 'createReservation'
+    },
+    {
+        method: 'get',
+        route: '/reservations/list',
+        controller: CustomerController,
+        action: 'getReservationList'
+    },
+    {
+        method: 'get',
+        route: '/staff/all',
+        controller: ManagementController,
+        action: 'attendantList'
+    },
+    {
+        method: 'get',
+        route: '/services/all',
+        controller: ManagementController,
+        action: 'servicesList'
+    },
+    {
+        method: 'post',
+        route: '/add/new/staff',
+        controller: ManagementController,
+        action: 'registerStaff'
+    },
+    {
+        method: 'post',
+        route: '/add/new/service',
+        controller: ManagementController,
+        action: 'registerService'
     }
 ];

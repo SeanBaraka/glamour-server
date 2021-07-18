@@ -7,6 +7,9 @@ export class Service {
     id: ObjectID
 
     @Column()
+    category: string
+
+    @Column()
     name: string
 
     @Column({ nullable: true})
@@ -15,8 +18,9 @@ export class Service {
     @Column(type => ServiceCost)
     costItems: ServiceCost[]
 
-    constructor(name: string, price: number) {
+    constructor(name: string, price: number, category: string) {
         this.name = name;
         this.price = price
+        this.category = category
     }
 }

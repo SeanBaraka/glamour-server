@@ -1,6 +1,5 @@
 import { Column, Entity, ObjectID, ObjectIdColumn } from "typeorm";
 
-@Entity('service_costing')
 export class ServiceCost {
     @ObjectIdColumn()
     id: ObjectID
@@ -10,4 +9,9 @@ export class ServiceCost {
 
     @Column()
     cost: number
+
+    constructor(item: string, cost: number) {
+        this.item = item,
+        this.cost = cost
+    }
 }
