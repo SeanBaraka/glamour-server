@@ -71,7 +71,7 @@ export class ManagementController {
         const { category, name, price, costItems } = request.body
         console.log(category, name, price);
         
-        const service = await this.serviceRepo.findOneOrFail({name: name})
+        const service = await this.serviceRepo.findOne({name: name})
         if (service === undefined) {
             const serviceToAdd = new Service(name, price, category)
             const costItemsList: any[] = Array.from(costItems)
