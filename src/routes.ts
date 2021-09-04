@@ -1,7 +1,20 @@
+import { AuthController } from "./controller/AuthController";
 import { CustomerController } from "./controller/CustomerController";
 import { ManagementController } from "./controller/ManagementController";
 
 export const Routes = [
+    {
+        method: 'post',
+        route: '/auth/register/',
+        controller: AuthController,
+        action: 'registerUser'
+    },
+    {
+        method: 'post',
+        route: '/auth/login',
+        controller: AuthController,
+        action: 'loginUser'
+    },
     {
         method: 'post',
         route: '/customer/registration/',
