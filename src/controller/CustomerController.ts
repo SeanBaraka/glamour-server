@@ -5,6 +5,7 @@ import { Customer } from "../entity/Customer";
 import { OrderReservation } from "../entity/OrderReservation";
 import { ReservationService } from "../entity/ReservationService";
 import { Service } from "../entity/Service";
+import { NotificationsHandler } from "./NotificationsHandler";
 
 export class CustomerController {
     
@@ -15,32 +16,6 @@ export class CustomerController {
     private reserveServiceRepo = getMongoRepository(ReservationService)
     private reserveOrderRepo = getMongoRepository(OrderReservation)
 
-    // Africastalking API integration.
-    // first we send the notification messages
-    private credentials = {
-        apiKey: process.env.ATKEY,
-        username: 'glamour'
-    }
-
-    private AfricasTalking = require('africastalking')(this.credentials);
-
-    private SMS = this.AfricasTalking.SMS
-
-    async sendMessage(recipients: any[], message: string) {
-        const options = {
-            // the numbers to send the message to
-            to: recipients,
-            // Set your message
-            message: message,
-
-            // Sms short code here
-            // from: '111'
-        }
-    
-        // sending the message from here
-        const messageSent = await this.SMS.send(options)
-        return messageSent
-    }
 
     // get a list of all customers
     async getAll(request: Request, response: Response) {
@@ -170,7 +145,8 @@ export class CustomerController {
                 recipients: [telephone],
                 message: `Hello ${addReservationOrder.customer.firstname}, Your reservation has been scheduled at ${timeOfDay} on ${date}. Please be at the palor before ${timeOfDay} for ${servicesList}`
             }
-            const sendMessage = await this.sendMessage(messageOptions.recipients, messageOptions.message)
+            const notification = new NotificationsHandler()
+            const sendMessage = await notification.sendMessage(messageOptions.recipients, messageOptions.message)
             const successMessage = {
                 message: 'Reservations Created Successfully',
                 status: 200,

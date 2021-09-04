@@ -4,3 +4,6 @@ node_modules/
 build/
 tmp/
 temp/
+
+# The orm settings file. To avoid leaking sensitive nformation
+ormconfig.json
