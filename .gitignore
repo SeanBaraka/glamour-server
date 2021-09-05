@@ -7,3 +7,7 @@ temp/
 
 # The orm settings file. To avoid leaking sensitive nformation
 ormconfig.json
+
+# dotenv environment variables file
+.env
+.env.test
