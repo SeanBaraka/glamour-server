@@ -41,9 +41,21 @@ export const Routes = [
     },
     {
         method: 'get',
+        route:'/users/getinfo/',
+        controller: AuthController,
+        action: 'getUserInfo'
+    },
+    {
+        method: 'get',
         route: '/reservations/list',
         controller: CustomerController,
         action: 'getReservationList'
+    },
+    {
+        method: 'post',
+        route: '/reservations/list/attendant',
+        controller: ManagementController,
+        action: 'getAttendantReservations'
     },
     {
         method: 'get',

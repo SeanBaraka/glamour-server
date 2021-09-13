@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { getMongoRepository } from "typeorm";
 import { AuthUser } from "../entity/AuthUser";
 import * as jwt from 'jsonwebtoken';
+import { Attendant } from "../entity/Attendant";
 
 export class AuthController {
     constructor() { }
@@ -15,6 +16,7 @@ export class AuthController {
 
     // first things first, initialize requiered properties
     private authRepo = getMongoRepository(AuthUser)
+    private attendantRepo = getMongoRepository(Attendant)
 
     async registerUser(request: Request, res: Response) {
         // get the registration object from the request body
@@ -52,6 +54,7 @@ export class AuthController {
 
         // get the login parameters from the request
         const { loginparam, password } = req.body
+
 
         // from the login parameters, try to identify the user
         try {
@@ -106,6 +109,28 @@ export class AuthController {
             }
             // return a user not found message
             res.status(404).send(notFound)
+        }
+    }
+
+    async getUserInfo(request: Request, res: Response) {
+        const authHeader = request.headers.authorization
+        const token = authHeader.split(' ')[1]
+        const decodedData = jwt.decode(token)
+        const username = decodedData.data
+
+        // attempt to find the user based on the username
+        const user = await this.authRepo.findOne({username: username})
+        if (user !== undefined) {
+            const attendantInfo = await this.attendantRepo.findOne({emailAddress: user.email})
+            const userdata = {
+                email: user.email,
+                telephone: attendantInfo.telephone,
+                id: attendantInfo.nationalId,
+                gender: attendantInfo.gender,
+                firstname: attendantInfo.firstname,
+                lastname: attendantInfo.lastname 
+            }
+            return userdata;
         }
     }
 
