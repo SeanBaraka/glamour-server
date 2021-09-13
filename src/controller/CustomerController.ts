@@ -30,7 +30,7 @@ export class CustomerController {
         // we asssume the param is the name of the customer
         const findByFirstName = await this.customerRepo.findOne({
             where: {
-                firstname: param
+                firstname: {$regex: param, $options: '$i'}
             }
         })
 
@@ -39,7 +39,7 @@ export class CustomerController {
         } else {
             const findByLastName = await this.customerRepo.findOne({
                 where: {
-                    lastname: param
+                    lastname: {$regex: param, $options: '$i'}
                 }
             });
             // if a match for the last name is found,
@@ -51,7 +51,7 @@ export class CustomerController {
                 const allCustomers = await this.customerRepo.find();
                // const desiredCustomer = allCustomers.find(customer => customer.firstname.includes(param) || customer.lastname.includes(param));
                 const validCustomers = allCustomers.filter(x => x.firstname !== '' && x.lastname !== '')
-                const desiredCustomer = validCustomers.find(cust => cust.firstname.includes(param) || cust.lastname.includes(param))
+                const desiredCustomer = validCustomers.find(cust => cust.firstname.toLowerCase().includes(param.toLowerCase()) || cust.lastname.toLowerCase().includes(param.toLowerCase()))
                 if (desiredCustomer == undefined) {
                     return {
                         error: 'Customer Not Found',
@@ -77,7 +77,6 @@ export class CustomerController {
         // attempt to add the customer
         try {
             const addAttempt = await this.customerRepo.insert(newCustomer) // add the record
-            console.log(addAttempt);
             if (addAttempt) {
                 const success  = {
                     "message": "new customer added successfully",
