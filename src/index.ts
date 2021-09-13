@@ -36,10 +36,14 @@ createConnection().then(async connection => {
     const adminPass = 'admin12345'
 
     const admin = await authRepo.findOne({username: adminUsername})
-    if (admin == undefined) {
+    if (admin === undefined) {
         const register = new AuthController()
         const admin = await register.prepareForRegister(adminUsername, adminEmail, adminPass)
-        console.log('>😎 admin user created')
+        const registerAdmin = await authRepo.save(admin)
+        if (registerAdmin) {
+            console.log('>😎 admin user created')
+        }
+        
     }
     // start express server
     const port = process.env.PORT
