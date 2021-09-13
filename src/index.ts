@@ -36,6 +36,7 @@ createConnection().then(async connection => {
     const adminPass = 'admin12345'
 
     const admin = await authRepo.findOne({username: adminUsername})
+    console.log(admin)
     if (admin === undefined) {
         const register = new AuthController()
         const admin = await register.prepareForRegister(adminUsername, adminEmail, adminPass)
