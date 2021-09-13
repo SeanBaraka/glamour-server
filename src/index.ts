@@ -6,9 +6,12 @@ import {Request, Response} from "express";
 import {Routes} from "./routes";
 import { pbkdf2Sync, randomBytes } from "crypto";
 import * as cors from 'cors'
+import { AuthUser } from "./entity/AuthUser";
+import { AuthController } from "./controller/AuthController";
 
 createConnection().then(async connection => {
 
+    const authRepo = getMongoRepository(AuthUser)
     // create express app
     const app = express();
     app.use(bodyParser.json());
@@ -26,6 +29,23 @@ createConnection().then(async connection => {
         });
     });
 
+
+    // check if there exists an admin user
+    const adminUsername = 'admin'
+    const adminEmail = 'admin@glamour.com'
+    const adminPass = 'admin12345'
+
+    const admin = await authRepo.findOne({username: adminUsername})
+    console.log(admin)
+    if (admin === undefined) {
+        const register = new AuthController()
+        const admin = await register.prepareForRegister(adminUsername, adminEmail, adminPass)
+        const registerAdmin = await authRepo.save(admin)
+        if (registerAdmin) {
+            console.log('>😎 admin user created')
+        }
+        
+    }
     // start express server
     const port = process.env.PORT
     app.listen(port);

@@ -6,6 +6,8 @@ import { ServiceCost } from "../entity/ServiceCost"
 import { AuthController } from "./AuthController"
 import { AuthUser } from "../entity/AuthUser"
 import { NotificationsHandler } from "./NotificationsHandler"
+import { ReservationService } from "../entity/ReservationService"
+import { OrderReservation } from "../entity/OrderReservation"
 
 // used for the overall management of the various parts of the system
 // i.e. customers, services, reservations, attendants e.t.c
@@ -13,6 +15,8 @@ export class ManagementController {
     private serviceRepo = getMongoRepository(Service)
     private attendantRepo = getMongoRepository(Attendant)
     private authRepo = getMongoRepository(AuthUser)
+    private reservesRepo = getMongoRepository(ReservationService)
+    private ordersRepo = getMongoRepository(OrderReservation)
 
     // get all customer details
     async servicesList(request: Request, response: Response) {
@@ -73,8 +77,8 @@ export class ManagementController {
             if (addUser) {
                 // send a notification message to the user informing them of account creation
                 const notificationHandler = new NotificationsHandler()
-                const sendMessage = await notificationHandler.sendMessage([telephone], `A new account has been created succesfully. Use your email address or firstname. Your password is ${password}. If you did not authorize this, kindly ignore this message.`)
-
+                const tel = '+254'+telephone.slice(1)
+                const sendMessage = await notificationHandler.sendMessage([tel], `A new account has been created succesfully. Use your email address or firstname. Your password is ${password}. If you did not authorize this, kindly ignore this message.`)
 
                 return {
                     message: 'a new member of staff has been added',
@@ -82,10 +86,39 @@ export class ManagementController {
                 }
             }
         } catch (error) {
-
+            return {
+                status: error.code,
+                message: error.message
+            }
         }
 
+    }
 
+    async getAttendantReservations(request: Request, response: Response) {
+        const {attendantId} = request.body
+        const orders = await this.ordersRepo.find()
+        const reservations = []
+        // get the matching attendant
+        const attendant = await this.attendantRepo.findOne({nationalId: attendantId})
+        if (attendant !== undefined) {
+            // if an attendant matching the given record exists
+            orders.forEach(order => {
+                order.services.forEach(service => {
+                    if (service.attendant.nationalId === attendant.nationalId) {
+                        const reserveObj = {
+                            customer: order.customer,
+                            startTime: service.startTime,
+                            endTime: service.endTime,
+                            service: service.service,
+                            status: 'completed'
+                        }
+                        reservations.push(reserveObj)
+                    }
+                });
+            });
+            return reservations
+        }
+        // return attendant
     }
 
 
