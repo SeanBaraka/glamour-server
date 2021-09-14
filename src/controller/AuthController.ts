@@ -122,15 +122,25 @@ export class AuthController {
         const user = await this.authRepo.findOne({username: username})
         if (user !== undefined) {
             const attendantInfo = await this.attendantRepo.findOne({emailAddress: user.email})
-            const userdata = {
-                email: user.email,
-                telephone: attendantInfo.telephone,
-                id: attendantInfo.nationalId,
-                gender: attendantInfo.gender,
-                firstname: attendantInfo.firstname,
-                lastname: attendantInfo.lastname 
+            if (attendantInfo !== undefined) {
+                const userdata = {
+                    email: user.email,
+                    telephone: attendantInfo.telephone,
+                    id: attendantInfo.nationalId,
+                    gender: attendantInfo.gender,
+                    firstname: attendantInfo.firstname,
+                    lastname: attendantInfo.lastname 
+                }
+                return userdata;
+            } else {
+                // the admin user data
+                const userdata = {
+                    email: user.email,
+                    username: user.username
+                }
+                return userdata;
             }
-            return userdata;
+            
         }
     }
 
