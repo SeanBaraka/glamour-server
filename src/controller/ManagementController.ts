@@ -101,7 +101,8 @@ export class ManagementController {
         // get the matching attendant
         const attendant = await this.attendantRepo.findOne({nationalId: attendantId})
         if (attendant !== undefined) {
-            // if an attendant matching the given record exists
+            // if an attendant matching the given record 
+            console.log(attendant)
             orders.forEach(order => {
                 order.services.forEach(service => {
                     if (service.attendant.nationalId === attendant.nationalId) {
@@ -116,6 +117,7 @@ export class ManagementController {
                     }
                 });
             });
+            console.log(reservations)
             return reservations
         }
         // return attendant
