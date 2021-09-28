@@ -3,7 +3,7 @@ import { getMongoRepository } from "typeorm";
 import { Attendant } from "../entity/Attendant";
 import { Customer } from "../entity/Customer";
 import { OrderReservation } from "../entity/OrderReservation";
-import { ReservationService } from "../entity/ReservationService";
+import { ReservationService, ReservationStatus } from "../entity/ReservationService";
 import { Service } from "../entity/Service";
 import { NotificationsHandler } from "./NotificationsHandler";
 
@@ -114,6 +114,8 @@ export class CustomerController {
                 const addAttendant = await this.attendantRepo.save(serviceAttendant)
             }
             let reserveService = new ReservationService(serviceAttendant, service.date, service.order, service.startTime, service.endTime)
+            // set the status to pending
+            reserveService.status = ReservationStatus.PENDING
             const savedReservation = await this.reserveServiceRepo.save(reserveService)
             reservation.services.push(savedReservation) // add the reservation to the reservation object
         }
@@ -139,10 +141,11 @@ export class CustomerController {
             const hourMark = parseInt(startTime.split(':')[0])
             let timeOfDay = ''
             hourMark < 12 ? timeOfDay = `${startTime} AM` : timeOfDay = `${hourMark - 12} PM`
-
+            const hourMarkMinus = hourMark - 12
+            if (hourMarkMinus == 0) timeOfDay = `12 PM`
             const messageOptions = {
                 recipients: [telephone],
-                message: `Hello ${addReservationOrder.customer.firstname}, Your reservation has been scheduled at ${timeOfDay} on ${date}. Please be at the palor before ${timeOfDay} for ${servicesList}`
+                message: `Hello ${addReservationOrder.customer.firstname}, Your reservation has been scheduled at ${timeOfDay} on ${date}. Please be at GLAMOUR before ${timeOfDay} for ${servicesList}`
             }
             const notification = new NotificationsHandler()
             const sendMessage = await notification.sendMessage(messageOptions.recipients, messageOptions.message)

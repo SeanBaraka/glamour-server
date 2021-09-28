@@ -78,7 +78,7 @@ export class ManagementController {
                 // send a notification message to the user informing them of account creation
                 const notificationHandler = new NotificationsHandler()
                 const tel = '+254'+telephone.slice(1)
-                const sendMessage = await notificationHandler.sendMessage([tel], `A new account has been created succesfully. Use your email address or firstname. Your password is ${password}. If you did not authorize this, kindly ignore this message.`)
+                const sendMessage = await notificationHandler.sendMessage([tel], `A new account has been created succesfully. Use your email address or firstname. Your password is ${password}. If you did not authorize this, kindly ignore this message. GLAMOUR`)
 
                 return {
                     message: 'a new member of staff has been added',
@@ -102,7 +102,7 @@ export class ManagementController {
         const attendant = await this.attendantRepo.findOne({nationalId: attendantId})
         if (attendant !== undefined) {
             // if an attendant matching the given record 
-            console.log(attendant)
+            // console.log(attendant)
             orders.forEach(order => {
                 order.services.forEach(service => {
                     if (service.attendant.nationalId === attendant.nationalId) {
@@ -111,14 +111,14 @@ export class ManagementController {
                             startTime: service.startTime,
                             endTime: service.endTime,
                             service: service.service,
-                            status: 'completed'
+                            status: service.status == 0 ? 'pending': service.status == 1 ?'completed' : 'cancelled'
                         }
                         reservations.push(reserveObj)
                     }
                 });
             });
-            console.log(reservations)
-            return reservations
+            // console.log(reservations)
+            return reservations.reverse()
         }
         // return attendant
     }
