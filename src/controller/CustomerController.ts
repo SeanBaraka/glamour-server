@@ -142,7 +142,7 @@ export class CustomerController {
 
             const messageOptions = {
                 recipients: [telephone],
-                message: `Hello ${addReservationOrder.customer.firstname}, Your reservation has been scheduled at ${timeOfDay} on ${date}. Please be at the palor before ${timeOfDay} for ${servicesList}`
+                message: `Hello ${addReservationOrder.customer.firstname}, Your reservation has been scheduled at ${timeOfDay} on ${date}. Please be at GLAMOUR before ${timeOfDay} for ${servicesList}`
             }
             const notification = new NotificationsHandler()
             const sendMessage = await notification.sendMessage(messageOptions.recipients, messageOptions.message)
