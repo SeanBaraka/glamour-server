@@ -5,10 +5,11 @@ import { Customer } from "../entity/Customer";
 import { OrderReservation } from "../entity/OrderReservation";
 import { ReservationService, ReservationStatus } from "../entity/ReservationService";
 import { Service } from "../entity/Service";
+import { getCustomerByPhone } from "../services/customer.service";
 import { NotificationsHandler } from "./NotificationsHandler";
 
 export class CustomerController {
-    
+
     // initialize the database repositories needed
     private customerRepo = getMongoRepository(Customer)
     private servicesRepo = getMongoRepository(Service)
@@ -26,43 +27,51 @@ export class CustomerController {
     // get a single customer, meeting the given criteria
     async getCustomer(request: Request, response: Response) {
         const param = request.body.searchParam
-        
-        // we asssume the param is the name of the customer
-        const findByFirstName = await this.customerRepo.findOne({
-            where: {
-                firstname: {$regex: param, $options: '$i'}
-            }
-        })
 
-        if (findByFirstName !== undefined) {
-            return findByFirstName
-        } else {
-            const findByLastName = await this.customerRepo.findOne({
-                where: {
-                    lastname: {$regex: param, $options: '$i'}
-                }
-            });
-            // if a match for the last name is found,
-            if (findByLastName !== undefined) {
-                return findByLastName;
-            } else {
-                // assumming that neither the firstname or lastnames match,
-                // we should try the full name
-                const allCustomers = await this.customerRepo.find();
-               // const desiredCustomer = allCustomers.find(customer => customer.firstname.includes(param) || customer.lastname.includes(param));
-                const validCustomers = allCustomers.filter(x => x.firstname !== '' && x.lastname !== '')
-                const desiredCustomer = validCustomers.find(cust => cust.firstname.toLowerCase().includes(param.toLowerCase()) || cust.lastname.toLowerCase().includes(param.toLowerCase()))
-                if (desiredCustomer == undefined) {
-                    return {
-                        error: 'Customer Not Found',
-                        message: 'customer does not exist',
-                        status: 404
-                    }
-                } else {
-                    return desiredCustomer
-                }
-            }
+        const customer = await getCustomerByPhone(param)
+        if (!customer) return {
+            error: 'Customer Not Found',
+            message: 'customer does not exist',
+            status: 404
         }
+        return customer;
+
+        // we asssume the param is the name of the customer
+        // const findByFirstName = await this.customerRepo.findOne({
+        //     where: {
+        //         firstname: {$regex: param, $options: '$i'}
+        //     }
+        // })
+
+        // if (findByFirstName !== undefined) {
+        //     return findByFirstName
+        // } else {
+        //     const findByLastName = await this.customerRepo.findOne({
+        //         where: {
+        //             lastname: {$regex: param, $options: '$i'}
+        //         }
+        //     });
+        //     // if a match for the last name is found,
+        //     if (findByLastName !== undefined) {
+        //         return findByLastName;
+        //     } else {
+        //         // assumming that neither the firstname or lastnames match,
+        //         // we should try the full name
+        //         const allCustomers = await this.customerRepo.find();
+        //        // const desiredCustomer = allCustomers.find(customer => customer.firstname.includes(param) || customer.lastname.includes(param));
+        //         const validCustomers = allCustomers.filter(x => x.firstname !== '' && x.lastname !== '')
+        //         const desiredCustomer = validCustomers.find(cust => cust.firstname.toLowerCase().includes(param.toLowerCase()) || cust.lastname.toLowerCase().includes(param.toLowerCase()))
+        //         if (desiredCustomer == undefined) {
+        //             return {
+        //                 error: 'Customer Not Found',
+        //                 message: 'customer does not exist',
+        //                 status: 404
+        //             }
+        //         } else {
+        //             return desiredCustomer
+        //         }
+        //     }
+        // }
     }
 
     async registerCustomer(request: Request, response: Response) {
@@ -73,18 +82,18 @@ export class CustomerController {
         newCustomer.lastname = request.body.lastname
         newCustomer.telephone = request.body.telephone
         newCustomer.address = request.body.address
-        
+
         // attempt to add the customer
         try {
             const addAttempt = await this.customerRepo.insert(newCustomer) // add the record
             if (addAttempt) {
-                const success  = {
+                const success = {
                     "message": "new customer added successfully",
                     "status": 200
                 }
                 return success;
             }
-            
+
         } catch (error) {
             console.log(error.message)
         }
@@ -108,7 +117,7 @@ export class CustomerController {
             // for each service from the request. create an instance of reservation service.
             // we will push this instance to the reservation object.
             // first, check if the attendant exists if not, create a new record
-            let serviceAttendant = await this.attendantRepo.findOne({where: {firstname: service.attendant}})
+            let serviceAttendant = await this.attendantRepo.findOne({ where: { firstname: service.attendant } })
             if (!serviceAttendant) {
                 serviceAttendant = new Attendant(service.attendant, '', 'female')
                 const addAttendant = await this.attendantRepo.save(serviceAttendant)
@@ -120,15 +129,15 @@ export class CustomerController {
             reservation.services.push(savedReservation) // add the reservation to the reservation object
         }
         const addReservationOrder = await this.reserveOrderRepo.save(reservation) // save the reservation order
-        
+
         try {
             // after saving the reservation... notify the user that one has been created for them
-            
-            const telephone = '+254'+addReservationOrder.customer.telephone.slice(1)
+
+            const telephone = '+254' + addReservationOrder.customer.telephone.slice(1)
             let date;
             let startTime = ''
             const services = []
-            
+
             addReservationOrder.services.forEach((service, index) => {
                 services.push(service.service)
                 if (index === 0) {
@@ -145,7 +154,7 @@ export class CustomerController {
             if (hourMarkMinus == 0) timeOfDay = `12 PM`
             const messageOptions = {
                 recipients: [telephone],
-                message: `Hello ${addReservationOrder.customer.firstname}, Your reservation has been scheduled at ${timeOfDay} on ${date}. Please be at GLAMOUR before ${timeOfDay} for ${servicesList}`
+                message: `Hello ${addReservationOrder.customer.firstname}, Your reservation has been scheduled at ${timeOfDay} on ${date}. Please be at GLAMOUR EXECUTIVE before ${timeOfDay} for ${servicesList}`
             }
             const notification = new NotificationsHandler()
             const sendMessage = await notification.sendMessage(messageOptions.recipients, messageOptions.message)
@@ -157,14 +166,14 @@ export class CustomerController {
                 }
             }
             return successMessage
-        } catch(error) {
+        } catch (error) {
             console.log(error)
             const errorMessage = {
                 message: 'Error'
             }
             return errorMessage;
         }
-        
+
     }
 
     async getReservationList(request: Request, response: Response) {

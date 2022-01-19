@@ -1,4 +1,4 @@
-import {Column, Entity, JoinColumn, ManyToOne, ObjectID, ObjectIdColumn, OneToOne} from "typeorm";
+import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, ObjectID, ObjectIdColumn, OneToOne} from "typeorm";
 
 export enum Gender {
     MALE = 'male',
@@ -6,7 +6,7 @@ export enum Gender {
 }
 
 @Entity('our_customers')
-export class Customer {
+export class Customer extends BaseEntity{
     @ObjectIdColumn()
     id: ObjectID
 

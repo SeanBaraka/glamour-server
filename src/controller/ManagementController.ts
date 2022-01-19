@@ -78,7 +78,7 @@ export class ManagementController {
                 // send a notification message to the user informing them of account creation
                 const notificationHandler = new NotificationsHandler()
                 const tel = '+254'+telephone.slice(1)
-                const sendMessage = await notificationHandler.sendMessage([tel], `A new account has been created succesfully. Use your email address or firstname. Your password is ${password}. If you did not authorize this, kindly ignore this message. GLAMOUR`)
+                const sendMessage = await notificationHandler.sendMessage([tel], `A new account has been created succesfully. Use your email address or firstname. Your password is ${password}. If you did not authorize this, kindly ignore this message. GLAMOUR EXECUTIVE`)
 
                 return {
                     message: 'a new member of staff has been added',
